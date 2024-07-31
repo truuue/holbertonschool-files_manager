@@ -22,13 +22,19 @@ class DBClient {
   }
 
   async nbUsers() {
-    const users = this.db ? this.db.collection('users') : null;
-    return users ? users.countDocuments() : 0;
+    if (!this.db) {
+      return 0;
+    }
+    const users = this.db.collection('users');
+    return users.countDocuments();
   }
 
   async nbFiles() {
-    const files = this.db ? this.db.collection('files') : null;
-    return files ? files.countDocuments() : 0;
+    if (!this.db) {
+      return 0;
+    }
+    const files = this.db.collection('files');
+    return files.countDocuments();
   }
 }
 
