@@ -1,7 +1,8 @@
 import sha1 from 'sha1';
-import { ObjectId } from 'mongodb';
-import dbClient from '../utils/db';
-import redisClient from '../utils/redis';
+import dbClient from '../utils/db.mjs';
+import redisClient from '../utils/redis.mjs';
+import pkg from 'mongodb';
+const { ObjectId } = pkg;
 
 const UsersController = {
   postNew: async (req, res) => {
