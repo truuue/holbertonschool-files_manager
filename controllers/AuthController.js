@@ -11,9 +11,15 @@ class AuthController {
     }
 
     const base64Credentials = authHeader.split(' ')[1];
-    const credentials = Buffer.from(base64Credentials, 'base64').toString('ascii');
-    const [email, password] = credentials.split(':');
+    let credentials;
 
+    try {
+      credentials = Buffer.from(base64Credentials, 'base64').toString('ascii');
+    } catch (error) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const [email, password] = credentials.split(':');
     if (!email || !password) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
@@ -27,7 +33,7 @@ class AuthController {
 
     const token = uuidv4();
     const tokenKey = `auth_${token}`;
-    await redisClient.set(tokenKey, user._id.toString(), 'EX', 86400); // Using 'EX' for expiration time
+    await redisClient.set(tokenKey, user._id.toString(), 'EX', 86400); // 86400 seconds = 24 hours
 
     return res.status(200).json({ token });
   }
