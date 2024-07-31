@@ -1,10 +1,11 @@
+import pkg from 'mongodb';
 import Queue from 'bull';
 import fs from 'fs';
 import mime from 'mime-types';
 import { v4 as uuidv4 } from 'uuid';
-import redisClient from '../utils/redis.mjs';
-import dbClient from '../utils/db.mjs';
-import pkg from 'mongodb';
+import redisClient from '../utils/redis';
+import dbClient from '../utils/db';
+
 const { ObjectId } = pkg;
 
 const FilesController = {
