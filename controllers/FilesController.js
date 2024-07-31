@@ -36,6 +36,7 @@ class FilesController {
     if (fileInfo.type === undefined || !validFileTypes.includes(fileInfo.type)) {
       return res.status(400).json({ error: 'Missing type' });
     }
+
     if (req.body.data === undefined && fileInfo.type !== 'folder') {
       return res.status(400).json({ error: 'Missing data' });
     }
@@ -66,6 +67,7 @@ class FilesController {
       const fileQueue = new Queue('fileQueue');
       fileQueue.add({ userId, fileId: id });
     }
+
     return res.status(201).json({ id, ...fileInfo });
   }
 
@@ -179,6 +181,7 @@ class FilesController {
         return res.status(404).json({ error: 'Not found' });
       }
     }
+
     if (file.type === 'folder') {
       return res.status(400).json({ error: "A folder doesn't have content" });
     }

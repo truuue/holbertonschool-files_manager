@@ -1,7 +1,5 @@
-import pkg from 'mongodb';
+import { MongoClient, ObjectId } from 'mongodb';
 import { createHash } from 'crypto';
-
-const { MongoClient } = pkg;
 
 class DBClient {
   constructor() {
@@ -11,7 +9,6 @@ class DBClient {
 
     this.mongoClient = new MongoClient(`mongodb://${host}:${port}/${database}`, { useUnifiedTopology: true });
     this.isConnectionAlive = false;
-
     this.mongoClient.connect().then(() => {
       this.isConnectionAlive = true;
     });
@@ -43,10 +40,8 @@ class DBClient {
     if (!this.isAlive()) {
       return false;
     }
-
     const collection = this.mongoClient.db().collection('users');
     const user = await collection.findOne({ email });
-
     return user != null;
   }
 
@@ -69,7 +64,6 @@ class DBClient {
     if (!this.isAlive()) {
       return null;
     }
-
     const collection = this.mongoClient.db().collection('users');
     const user = await collection.findOne({ email });
     return user;
@@ -79,7 +73,6 @@ class DBClient {
     if (!this.isAlive()) {
       return null;
     }
-
     const collection = this.mongoClient.db().collection('users');
     const user = await collection.findOne(ObjectId(id));
     return user;
@@ -94,7 +87,6 @@ class DBClient {
     if (userId !== null) {
       query.userId = userId;
     }
-
     const collection = this.mongoClient.db().collection('files');
     const file = await collection.findOne(query);
     return file;
@@ -107,7 +99,6 @@ class DBClient {
 
     const collection = this.mongoClient.db().collection('files');
     const result = await collection.insertOne(file);
-
     return result.insertedId;
   }
 

@@ -5,6 +5,7 @@ import AuthController from '../controllers/AuthController';
 import FilesController from '../controllers/FilesController';
 
 const app = express.Router();
+
 app.use(express.json());
 
 app.get('/status', AppController.getStatus);

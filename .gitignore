@@ -1,5 +1,2 @@
-node_modules
-package-lock.json
-.vscode
-requests
-.venv
+node_modules/
+data/
