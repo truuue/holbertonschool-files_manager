@@ -1,5 +1,7 @@
-import { MongoClient, ObjectId } from 'mongodb';
 import { createHash } from 'crypto';
+import mongodb from 'mongodb';
+
+const { MongoClient, ObjectId } = mongodb;
 
 class DBClient {
   constructor() {
