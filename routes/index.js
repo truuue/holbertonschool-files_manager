@@ -5,6 +5,7 @@ import UsersController from '../controllers/UsersController.js';
 import FilesController from '../controllers/FilesController.js';
 
 const router = Router();
+app.use(express.json());
 
 router.get('/status', AppController.getStatus);
 router.get('/stats', AppController.getStats);
