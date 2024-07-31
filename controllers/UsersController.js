@@ -1,51 +1,57 @@
-import sha1 from 'sha1';
 import { ObjectId } from 'mongodb';
-import dbClient from '../utils/db';
-import redisClient from '../utils/redis';
+const crypto = require('crypto');
+const dbClient = require('../utils/db');
+const redisClient = require('../utils/redis');
 
-const UsersController = {
-  postNew: async (req, res) => {
+function hashPasswd(password) {
+  const hash = crypto.createHash('sha1');
+  const data = hash.update(password, 'utf-8');
+  const genHash = data.digest('hex');
+
+  return genHash;
+}
+
+class UsersController {
+  static async postNew(req, res) {
     const { email, password } = req.body;
 
     if (!email) {
       return res.status(400).json({ error: 'Missing email' });
     }
-
     if (!password) {
       return res.status(400).json({ error: 'Missing password' });
     }
 
-    const usersCollection = dbClient.db.collection('users');
-    const user = await usersCollection.findOne({ email });
-    if (user) {
+    const search = await dbClient.db.collection('users').find({ email }).toArray();
+    if (search.length > 0) {
       return res.status(400).json({ error: 'Already exist' });
     }
 
-    const addNewUser = await usersCollection.insertOne({
-      email,
-      password: sha1(password),
-    });
+    const hashpwd = hashPasswd(password);
+    const addUser = await dbClient.db.collection('users').insertOne({ email, password: hashpwd });
+    const newUser = { id: addUser.ops[0]._id, email: addUser.ops[0].email };
 
-    return res.status(201).json({ email, id: addNewUser.insertedId });
-  },
+    return res.status(201).json(newUser);
+  }
 
-  getMe: async (req, res) => {
-    const token = req.headers['x-token'];
-    if (!token) {
+  static async getMe(req, res) {
+    const key = req.header('X-Token');
+    const session = await redisClient.get(`auth_${key}`);
+
+    if (!key || key.length === 0) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
-    const userId = await redisClient.get(`auth_${token}`);
-    if (!userId) {
-      return res.status(401).json({ error: 'Unauthorized' });
-    }
-    const _id = new ObjectId(userId);
-    const usersCollection = dbClient.db.collection('users');
-    const user = await usersCollection.findOne({ _id });
-    if (!user) {
-      return res.status(401).json({ error: 'Unauthorized' });
-    }
-    return res.status(200).json({ id: user._id.toString(), email: user.email });
-  },
-};
 
-export default UsersController;
+    if (session) {
+      const search = await dbClient.db.collection('users').find({ _id: ObjectId(session) }).toArray();
+
+      if (search.length > 0) {
+        return res.status(200).json({ id: search[0]._id, email: search[0].email });
+      }
+    }
+
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+}
+
+module.exports = UsersController;
